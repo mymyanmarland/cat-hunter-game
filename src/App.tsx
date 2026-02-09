@@ -86,7 +86,7 @@ const MarketSidebar = () => {
 
   const fetchMarketData = async () => {
     try {
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true');
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
       const json = await res.json();
       
       const cryptoItems: MarketData[] = [
@@ -115,33 +115,51 @@ const MarketSidebar = () => {
   }, []);
 
   return (
-    <div className="fixed left-6 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-50">
-      <motion.div 
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        className="glass-card p-6 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-56 overflow-hidden relative"
-      >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
-          Live Intelligence
-        </h3>
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 flex-col gap-4 z-50">
+        <motion.div 
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="glass-card p-6 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-56 overflow-hidden relative"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
+            Live Intelligence
+          </h3>
 
-        <div className="flex flex-col gap-5">
-          {loading ? (
-            [1, 2, 3, 4].map(i => <div key={i} className="h-8 bg-white/5 animate-pulse rounded-lg"></div>)
-          ) : (
-            data.map((item) => <MarketItem key={item.name} item={item} />)
-          )}
-        </div>
+          <div className="flex flex-col gap-5">
+            {loading ? (
+              [1, 2, 3, 4].map(i => <div key={i} className="h-8 bg-white/5 animate-pulse rounded-lg"></div>)
+            ) : (
+              data.map((item) => <MarketItem key={item.name} item={item} />)
+            )}
+          </div>
 
-        <div className="mt-8 pt-4 border-t border-white/5">
-          <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest text-center">
-            Secured Feed • Real-time
-          </p>
+          <div className="mt-8 pt-4 border-t border-white/5">
+            <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest text-center">
+              Secured Feed • Real-time
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Mobile Ticker (Top) */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 overflow-hidden py-2">
+        <div className="flex animate-marquee whitespace-nowrap gap-8 px-4">
+          {[...data, ...data].map((item, i) => (
+            <div key={`${item.name}-${i}`} className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300">{item.name}</span>
+              <span className="text-xs font-mono text-white">{item.price}</span>
+              <span className={`text-[10px] ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {item.change >= 0 ? '↑' : '↓'} {Math.abs(item.change).toFixed(2)}%
+              </span>
+            </div>
+          ))}
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </>
   );
 };
 
@@ -399,18 +417,18 @@ const App: React.FC = () => {
         </Suspense>
       </Canvas>
 
-      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-8 font-sans text-white">
-        <header className="w-full max-w-5xl flex justify-between items-start pointer-events-auto ml-64">
-          <div className="flex gap-4">
-            <div className="glass-card px-8 py-4 rounded-3xl flex flex-col items-center shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-4 md:p-8 font-sans text-white">
+        <header className="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center md:items-start pointer-events-auto md:ml-64 gap-4 mt-12 md:mt-0">
+          <div className="flex gap-2 md:gap-4 scale-90 md:scale-100 origin-top">
+            <div className="glass-card px-6 md:px-8 py-3 md:py-4 rounded-3xl flex flex-col items-center shadow-[0_0_40px_rgba(0,0,0,0.5)]">
               <span className="text-slate-500 text-[10px] uppercase tracking-[0.3em] font-black mb-1">Score</span>
               <div className="flex items-center gap-3">
-                <Trophy className="text-yellow-400 w-6 h-6" />
-                <span className="font-black text-4xl tabular-nums">{score}</span>
+                <Trophy className="text-yellow-400 w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-black text-3xl md:text-4xl tabular-nums">{score}</span>
               </div>
             </div>
 
-            <div className="glass-card px-8 py-4 rounded-3xl flex flex-col items-center border-yellow-500/20">
+            <div className="glass-card px-6 md:px-8 py-3 md:py-4 rounded-3xl flex flex-col items-center border-yellow-500/20">
               <span className="text-yellow-600 text-[10px] uppercase tracking-[0.3em] font-black mb-1 text-center block">Coins</span>
               <div className="flex items-center gap-2">
                 <motion.div 
@@ -418,20 +436,20 @@ const App: React.FC = () => {
                   animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
                   className="bg-yellow-500 p-1.5 rounded-full shadow-[0_0_15px_#eab308]"
                 >
-                  <Coins className="text-slate-950 w-4 h-4" />
+                  <Coins className="text-slate-950 w-3 h-3 md:w-4 md:h-4" />
                 </motion.div>
-                <span className="font-black text-3xl tabular-nums">{coins}</span>
+                <span className="font-black text-2xl md:text-3xl tabular-nums">{coins}</span>
               </div>
             </div>
           </div>
 
-          <div className="glass-card px-12 py-4 rounded-3xl border-t border-white/20 shadow-2xl">
-            <span className={`font-mono text-5xl font-black tracking-tighter ${time < 10 ? 'text-red-500 animate-pulse' : 'text-indigo-400'}`}>
+          <div className="glass-card px-8 md:px-12 py-2 md:py-4 rounded-3xl border-t border-white/20 shadow-2xl scale-90 md:scale-100">
+            <span className={`font-mono text-4xl md:text-5xl font-black tracking-tighter ${time < 10 ? 'text-red-500 animate-pulse' : 'text-indigo-400'}`}>
               {time}s
             </span>
           </div>
 
-          <div className="glass-card px-8 py-4 rounded-3xl opacity-60">
+          <div className="glass-card px-6 md:px-8 py-3 md:py-4 rounded-3xl opacity-60 hidden md:block">
             <span className="text-slate-500 text-[10px] uppercase tracking-[0.3em] font-black mb-1 text-center block">Record</span>
             <span className="font-bold text-2xl tabular-nums block text-center">{highScore}</span>
           </div>
@@ -441,17 +459,17 @@ const App: React.FC = () => {
           {gameState === 'start' && (
             <motion.div 
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="pointer-events-auto bg-slate-950/40 backdrop-blur-3xl border border-white/10 p-16 rounded-[4rem] text-center shadow-2xl max-w-lg"
+              className="pointer-events-auto bg-slate-950/40 backdrop-blur-3xl border border-white/10 p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] text-center shadow-2xl max-w-lg mx-4"
             >
-              <h1 className="text-7xl font-black mb-4 tracking-tighter uppercase italic leading-none">
+              <h1 className="text-5xl md:text-7xl font-black mb-4 tracking-tighter uppercase italic leading-none">
                 Cat <span className="text-indigo-500">Hunter</span>
               </h1>
-              <p className="text-slate-400 mb-12 font-semibold tracking-widest uppercase text-xs">Market Master • Treasure Hunt Edition</p>
+              <p className="text-slate-400 mb-8 md:mb-12 font-semibold tracking-widest uppercase text-[10px] md:text-xs">Market Master • Treasure Hunt Edition</p>
               <button 
                 onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
-                className="w-full py-6 bg-indigo-600 text-white rounded-3xl font-black text-2xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-95 hover:-translate-y-1"
+                className="w-full py-4 md:py-6 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-2xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-95 hover:-translate-y-1"
               >
-                <Play className="fill-current w-8 h-8" />
+                <Play className="fill-current w-6 h-6 md:w-8 md:h-8" />
                 START HUNT
               </button>
             </motion.div>
@@ -460,36 +478,36 @@ const App: React.FC = () => {
           {gameState === 'gameover' && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-              className="pointer-events-auto bg-slate-950/80 backdrop-blur-3xl border-2 border-red-500/20 p-16 rounded-[4rem] text-center shadow-2xl"
+              className="pointer-events-auto bg-slate-950/80 backdrop-blur-3xl border-2 border-red-500/20 p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] text-center shadow-2xl mx-4"
             >
-              <h2 className="text-4xl font-black text-red-500 mb-2 uppercase tracking-tighter italic">Time's Up!</h2>
-              <div className="flex gap-10 my-10 items-center justify-center">
+              <h2 className="text-3xl md:text-4xl font-black text-red-500 mb-2 uppercase tracking-tighter italic">Time's Up!</h2>
+              <div className="flex gap-6 md:gap-10 my-8 md:my-10 items-center justify-center">
                 <div className="text-center">
-                  <p className="text-9xl font-black tracking-tighter">{score}</p>
+                  <p className="text-6xl md:text-9xl font-black tracking-tighter">{score}</p>
                   <p className="text-slate-400 text-[10px] uppercase tracking-[0.4em] font-black">Score</p>
                 </div>
-                <div className="h-24 w-px bg-white/10"></div>
+                <div className="h-16 md:h-24 w-px bg-white/10"></div>
                 <div className="text-center">
-                  <p className="text-9xl font-black tracking-tighter text-yellow-500">{coins}</p>
+                  <p className="text-6xl md:text-9xl font-black tracking-tighter text-yellow-500">{coins}</p>
                   <p className="text-yellow-600/60 text-[10px] uppercase tracking-[0.4em] font-black">Gold Coins</p>
                 </div>
               </div>
               <button 
                 onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
-                className="px-16 py-5 bg-white text-slate-950 rounded-3xl font-black text-xl flex items-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95"
+                className="px-10 md:px-16 py-4 md:py-5 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95 mx-auto"
               >
-                <RefreshCcw className="w-6 h-6" />
+                <RefreshCcw className="w-5 h-5 md:w-6 md:h-6" />
                 RETRY MISSION
               </button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <footer className="w-full flex justify-between items-center text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] pointer-events-auto px-4 ml-64">
+        <footer className="w-full flex flex-col md:flex-row justify-between items-center text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] pointer-events-auto px-4 md:ml-64 gap-4 pb-4 md:pb-0">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2 bg-slate-900/50 px-5 py-2.5 rounded-2xl border border-white/5">
+            <span className="flex items-center gap-2 bg-slate-900/50 px-5 py-2.5 rounded-2xl border border-white/5 whitespace-nowrap">
               <Coins className="w-3.5 h-3.5 text-yellow-500" />
-              Collect Gold Each Catch
+              Collect Gold
             </span>
           </div>
           <div className="flex items-center gap-6">

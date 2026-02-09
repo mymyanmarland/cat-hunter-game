@@ -8,11 +8,16 @@ export default {
     extend: {
       animation: {
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'marquee': 'marquee 25s linear infinite',
       },
       keyframes: {
         glow: {
           'from': { 'box-shadow': '0 0 10px #f0abfc, 0 0 20px #f0abfc' },
           'to': { 'box-shadow': '0 0 20px #f0abfc, 0 0 40px #f0abfc' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
         }
       }
     },
