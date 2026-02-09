@@ -557,13 +557,39 @@ const App: React.FC = () => {
                 Cat <span className="text-indigo-500">Hunter</span>
               </h1>
               <p className="text-slate-400 mb-8 md:mb-12 font-semibold tracking-widest uppercase text-[10px] md:text-xs">Market Master • Treasure Hunt Edition</p>
-              <button 
-                onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
-                className="w-full py-4 md:py-6 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-2xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-95 hover:-translate-y-1"
-              >
-                <Play className="fill-current w-6 h-6 md:w-8 md:h-8" />
-                START HUNT
-              </button>
+              
+              <div className="flex flex-col gap-4 w-full">
+                <button 
+                  onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
+                  className="w-full py-4 md:py-6 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-2xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-95 hover:-translate-y-1"
+                >
+                  <Play className="fill-current w-6 h-6 md:w-8 md:h-8" />
+                  START HUNT
+                </button>
+
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => {
+                      const text = `လာဆော့ကြည့်ပါဦး! Cat Hunter 3D: Market Master Edition 🐭🐱\n\nLink: ${window.location.href}`;
+                      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="flex-1 py-3 bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-white border border-[#1877F2]/30 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-xs pointer-events-auto"
+                  >
+                    <Facebook className="w-4 h-4 fill-[#1877F2]" />
+                    Facebook
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const text = `လာဆော့ကြည့်ပါဦး! Cat Hunter 3D: Market Master Edition 🐭🐱\n\nLink: ${window.location.href}`;
+                      window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="flex-1 py-3 bg-[#0088cc]/20 hover:bg-[#0088cc]/40 text-white border border-[#0088cc]/30 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-xs pointer-events-auto"
+                  >
+                    <Send className="w-4 h-4 text-[#0088cc]" />
+                    Telegram
+                  </button>
+                </div>
+              </div>
             </motion.div>
           )}
 
@@ -627,20 +653,20 @@ const App: React.FC = () => {
                       const text = `ငါ Cat Hunter 3D မှာ ${score} မှတ် ရထားတယ်။ လာဆော့ကြည့်ပါဦး! 🐭🐱\n\nLink: ${window.location.href}`;
                       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`, '_blank');
                     }}
-                    className="flex-1 py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 text-sm"
+                    className="flex-1 py-5 bg-[#1877F2] text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-[#1877F2]/20"
                   >
-                    <Facebook className="w-4 h-4 fill-current" />
-                    Facebook
+                    <Facebook className="w-5 h-5 fill-current" />
+                    FB SHARE
                   </button>
                   <button 
                     onClick={() => {
                       const text = `ငါ Cat Hunter 3D မှာ ${score} မှတ် ရထားတယ်။ လာဆော့ကြည့်ပါဦး! 🐭🐱\n\nLink: ${window.location.href}`;
                       window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
                     }}
-                    className="flex-1 py-4 bg-[#0088cc] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 text-sm"
+                    className="flex-1 py-5 bg-[#0088cc] text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-[#0088cc]/20"
                   >
-                    <Send className="w-4 h-4" />
-                    Telegram
+                    <Send className="w-5 h-5" />
+                    TG SEND
                   </button>
                 </div>
 
