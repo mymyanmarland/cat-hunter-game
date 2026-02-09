@@ -11,7 +11,7 @@ import {
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
-import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark } from 'lucide-react';
+import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Constants ---
@@ -80,7 +80,7 @@ const MarketItem = ({ item }: { item: MarketData }) => {
   );
 };
 
-const MarketSidebar = () => {
+const MarketSidebar = ({ onDataUpdate }: { onDataUpdate?: (data: MarketData[]) => void }) => {
   const [data, setData] = useState<MarketData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -101,8 +101,10 @@ const MarketSidebar = () => {
         { name: 'USD/MMK', price: '4550.00', change: 0.15, icon: <CircleDollarSign className="text-indigo-400 w-4 h-4" /> },
       ];
 
-      setData([...cryptoItems, ...worldItems]);
+      const allData = [...cryptoItems, ...worldItems];
+      setData(allData);
       setLoading(false);
+      if (onDataUpdate) onDataUpdate(allData);
     } catch (error) {
       console.error("Market fetch failed:", error);
     }
@@ -165,6 +167,76 @@ const MarketSidebar = () => {
 
 
 // --- 3D Components ---
+
+const generateShareImage = async (score: number, coins: number, marketData: MarketData[]): Promise<File | null> => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 630;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // Background Gradient
+  const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+  gradient.addColorStop(0, '#1e1b4b');
+  gradient.addColorStop(1, '#312e81');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1200, 630);
+
+  // Title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 80px Inter, sans-serif';
+  ctx.fillText('Cat Hunter 3D', 50, 100);
+  
+  ctx.fillStyle = '#a5b4fc';
+  ctx.font = '40px Inter, sans-serif';
+  ctx.fillText('Market Master Edition', 50, 160);
+
+  // Score & Coins
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 120px Inter, sans-serif';
+  ctx.fillText(`${score}`, 50, 350);
+  ctx.font = '40px Inter, sans-serif';
+  ctx.fillText('SCORE', 50, 400);
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 120px Inter, sans-serif';
+  ctx.fillText(`${coins}`, 400, 350);
+  ctx.font = '40px Inter, sans-serif';
+  ctx.fillText('COINS', 400, 400);
+
+  // Market Data (Right Side)
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(800, 50, 350, 530);
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 30px Inter, sans-serif';
+  ctx.fillText('LIVE MARKETS', 830, 100);
+
+  marketData.forEach((item, i) => {
+    const y = 160 + (i * 80);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 24px Inter, sans-serif';
+    ctx.fillText(item.name, 830, y);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '32px Inter, sans-serif';
+    ctx.fillText(item.price, 830, y + 40);
+    
+    ctx.fillStyle = item.change >= 0 ? '#34d399' : '#f87171';
+    ctx.font = '24px Inter, sans-serif';
+    ctx.fillText(`${item.change >= 0 ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1050, y + 40);
+  });
+
+  return new Promise(resolve => {
+    canvas.toBlob(blob => {
+      if (blob) {
+        resolve(new File([blob], 'share.png', { type: 'image/png' }));
+      } else {
+        resolve(null);
+      }
+    });
+  });
+};
 
 const GoldCoin = ({ position, onComplete }: { position: THREE.Vector3, onComplete: () => void }) => {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -347,6 +419,19 @@ const App: React.FC = () => {
   const [highScore, setHighScore] = useState(Number(localStorage.getItem('cat-hunter-highscore-v4')) || 0);
   const [time, setTime] = useState(30);
   const [activeCoins, setActiveCoins] = useState<{ id: number, pos: THREE.Vector3 }[]>([]);
+  const [marketDataForShare, setMarketDataForShare] = useState<MarketData[]>([]);
+
+  // Capture market data for sharing
+  useEffect(() => {
+    // This is a simplified way to share state. ideally we'd use context or lift state up.
+    // For now we will rely on the fact that MarketSidebar fetches data independently.
+    // To make it shareable, we'll expose a global event or simpler, just re-fetch for the share image generation
+    // or better yet, let's pass a callback to MarketSidebar.
+  }, []);
+
+  const handleMarketUpdate = (data: MarketData[]) => {
+    setMarketDataForShare(data);
+  };
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -382,7 +467,7 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen bg-[#020617] overflow-hidden select-none">
-      <MarketSidebar />
+      <MarketSidebar onDataUpdate={handleMarketUpdate} />
       
       <Canvas shadows dpr={[1, 2]} gl={{ antialias: false }}>
         <PerspectiveCamera makeDefault position={[0, 12, 12]} fov={45} />
@@ -492,13 +577,37 @@ const App: React.FC = () => {
                   <p className="text-yellow-600/60 text-[10px] uppercase tracking-[0.4em] font-black">Gold Coins</p>
                 </div>
               </div>
-              <button 
-                onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
-                className="px-10 md:px-16 py-4 md:py-5 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95 mx-auto"
-              >
-                <RefreshCcw className="w-5 h-5 md:w-6 md:h-6" />
-                RETRY MISSION
-              </button>
+              <div className="flex flex-col gap-4">
+                <button 
+                  onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
+                  className="px-10 md:px-16 py-4 md:py-5 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95 mx-auto w-full"
+                >
+                  <RefreshCcw className="w-5 h-5 md:w-6 md:h-6" />
+                  RETRY MISSION
+                </button>
+                <button 
+                  onClick={async () => {
+                    const file = await generateShareImage(score, coins, marketDataForShare);
+                    if (file && navigator.share) {
+                      try {
+                        await navigator.share({
+                          files: [file],
+                          title: 'Cat Hunter 3D Score',
+                          text: `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! Market Data included.`,
+                        });
+                      } catch (err) {
+                        console.error('Share failed:', err);
+                      }
+                    } else {
+                      alert('Sharing is not supported on this device/browser context (requires HTTPS and secure context).');
+                    }
+                  }}
+                  className="px-10 md:px-16 py-4 md:py-5 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-500 transition-all shadow-xl active:scale-95 mx-auto w-full"
+                >
+                  <Share2 className="w-5 h-5 md:w-6 md:h-6" />
+                  SHARE RESULT
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
