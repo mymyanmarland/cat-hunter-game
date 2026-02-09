@@ -545,11 +545,37 @@ const App: React.FC = () => {
     }
   }, [score, highScore]);
 
+  const meowAudio = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    meowAudio.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2364/2364-preview.mp3');
+  }, []);
+
+  const resetGame = () => {
+    setScore(0);
+    setCoins(0);
+    setTime(30);
+    setGameState('playing');
+    // Unlock and play dummy sound to allow future plays
+    if (meowAudio.current) {
+      meowAudio.current.play().then(() => {
+        meowAudio.current?.pause();
+        if (meowAudio.current) meowAudio.current.currentTime = 0;
+      }).catch(() => {});
+    }
+  };
+
   const handleCatch = (pos: THREE.Vector3) => {
     setScore(s => s + 10);
     setCoins(c => c + 1);
     const newCoin = { id: Date.now(), pos };
     setActiveCoins(prev => [...prev, newCoin]);
+    
+    // Play Meow Sound
+    if (meowAudio.current) {
+      meowAudio.current.currentTime = 0;
+      meowAudio.current.play().catch(() => {});
+    }
   };
 
   const removeCoin = (id: number) => {
@@ -646,7 +672,7 @@ const App: React.FC = () => {
               
               <div className="flex flex-col gap-4 w-full">
                 <button 
-                  onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
+                  onClick={resetGame}
                   className="w-full py-4 md:py-6 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-2xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-95 hover:-translate-y-1"
                 >
                   <Play className="fill-current w-6 h-6 md:w-8 md:h-8" />
@@ -698,7 +724,7 @@ const App: React.FC = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <button 
-                  onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
+                  onClick={resetGame}
                   className="px-10 md:px-16 py-4 md:py-5 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95 mx-auto w-full"
                 >
                   <RefreshCcw className="w-5 h-5 md:w-6 md:h-6" />
