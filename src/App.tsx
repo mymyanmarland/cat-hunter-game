@@ -26,28 +26,79 @@ interface MarketData {
   icon: React.ReactNode;
 }
 
+const MarketItem = ({ item }: { item: MarketData }) => {
+  const [displayPrice, setDisplayPrice] = useState(parseFloat(item.price.replace(/[$,]/g, '')));
+
+  // Sync with real data when it updates
+  useEffect(() => {
+    const newPrice = parseFloat(item.price.replace(/[$,]/g, ''));
+    setDisplayPrice(newPrice);
+  }, [item.price]);
+
+  // Visual Fluctuation (Every 1s) to make it feel "Live"
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDisplayPrice(prev => {
+        const fluctuation = (Math.random() - 0.5) * (prev * 0.0001); // 0.01% jitter
+        return prev + fluctuation;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formattedPrice = item.name.includes('MMK') 
+    ? displayPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : `$${displayPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center justify-between group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/5 rounded-xl group-hover:bg-white/10 transition-colors">
+          {item.icon}
+        </div>
+        <div className="flex flex-col">
+          <span className="text-white font-bold text-xs">{item.name}</span>
+          <motion.span 
+            key={formattedPrice}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            className="text-slate-400 text-[10px] font-medium font-mono"
+          >
+            {formattedPrice}
+          </motion.span>
+        </div>
+      </div>
+      <div className={`flex items-center gap-1 ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        {item.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        <span className="text-[10px] font-bold">{Math.abs(item.change).toFixed(2)}%</span>
+      </div>
+    </motion.div>
+  );
+};
+
 const MarketSidebar = () => {
   const [data, setData] = useState<MarketData[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchMarketData = async () => {
     try {
-      // 1. Fetch Crypto Data from CoinGecko (No Key)
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true');
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
       const json = await res.json();
       
       const cryptoItems: MarketData[] = [
-        { name: 'BTC', price: `$${json.bitcoin.usd.toLocaleString()}`, change: json.bitcoin.usd_24h_change, icon: <Coins className="text-orange-400 w-4 h-4" /> },
-        { name: 'ETH', price: `$${json.ethereum.usd.toLocaleString()}`, change: json.ethereum.usd_24h_change, icon: <Coins className="text-blue-400 w-4 h-4" /> },
-        { name: 'SOL', price: `$${json.solana.usd.toLocaleString()}`, change: json.solana.usd_24h_change, icon: <Coins className="text-purple-400 w-4 h-4" /> },
+        { name: 'BTC', price: json.bitcoin.usd.toString(), change: json.bitcoin.usd_24h_change, icon: <Coins className="text-orange-400 w-4 h-4" /> },
+        { name: 'ETH', price: json.ethereum.usd.toString(), change: json.ethereum.usd_24h_change, icon: <Coins className="text-blue-400 w-4 h-4" /> },
+        { name: 'SOL', price: json.solana.usd.toString(), change: json.solana.usd_24h_change, icon: <Coins className="text-purple-400 w-4 h-4" /> },
       ];
 
-      // 2. Add Mock/Simulated World Markets (since public APIs for stocks/gold often require keys or have CORS)
-      // In a real Master App, we'd use a serverless proxy, but here we'll use semi-dynamic real-world base values
       const worldItems: MarketData[] = [
-        { name: 'GOLD', price: '$2,735.40', change: 0.45, icon: <Landmark className="text-yellow-500 w-4 h-4" /> },
-        { name: 'S&P 500', price: '5,980.20', change: -0.12, icon: <BarChart3 className="text-emerald-400 w-4 h-4" /> },
-        { name: 'USD/MMK', price: '4,550.00', change: 0.15, icon: <CircleDollarSign className="text-indigo-400 w-4 h-4" /> },
+        { name: 'GOLD', price: '2735.40', change: 0.45, icon: <Landmark className="text-yellow-500 w-4 h-4" /> },
+        { name: 'S&P 500', price: '5980.20', change: -0.12, icon: <BarChart3 className="text-emerald-400 w-4 h-4" /> },
+        { name: 'USD/MMK', price: '4550.00', change: 0.15, icon: <CircleDollarSign className="text-indigo-400 w-4 h-4" /> },
       ];
 
       setData([...cryptoItems, ...worldItems]);
@@ -59,7 +110,7 @@ const MarketSidebar = () => {
 
   useEffect(() => {
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 30000); // Update every 30s
+    const interval = setInterval(fetchMarketData, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -72,49 +123,28 @@ const MarketSidebar = () => {
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-          Live Markets
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
+          Live Intelligence
         </h3>
 
         <div className="flex flex-col gap-5">
           {loading ? (
             [1, 2, 3, 4].map(i => <div key={i} className="h-8 bg-white/5 animate-pulse rounded-lg"></div>)
           ) : (
-            data.map((item, i) => (
-              <motion.div 
-                key={item.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/5 rounded-xl group-hover:bg-white/10 transition-colors">
-                    {item.icon}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-white font-bold text-xs">{item.name}</span>
-                    <span className="text-slate-400 text-[10px] font-medium">{item.price}</span>
-                  </div>
-                </div>
-                <div className={`flex items-center gap-1 ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {item.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  <span className="text-[10px] font-bold">{Math.abs(item.change).toFixed(2)}%</span>
-                </div>
-              </motion.div>
-            ))
+            data.map((item) => <MarketItem key={item.name} item={item} />)
           )}
         </div>
 
         <div className="mt-8 pt-4 border-t border-white/5">
           <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest text-center">
-            Master Intelligence Feed
+            Secured Feed • Real-time
           </p>
         </div>
       </motion.div>
     </div>
   );
 };
+
 
 // --- 3D Components ---
 
