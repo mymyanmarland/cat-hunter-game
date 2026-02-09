@@ -588,7 +588,9 @@ const App: React.FC = () => {
                 <button 
                   onClick={async () => {
                     const file = await generateShareImage(score, coins, marketDataForShare);
-                    if (file && navigator.share) {
+                    if (!file) return;
+
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                       try {
                         await navigator.share({
                           files: [file],
@@ -599,13 +601,21 @@ const App: React.FC = () => {
                         console.error('Share failed:', err);
                       }
                     } else {
-                      alert('Sharing is not supported on this device/browser context (requires HTTPS and secure context).');
+                      // Fallback: Download Image
+                      const url = URL.createObjectURL(file);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `cat-hunter-score-${Date.now()}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
                     }
                   }}
                   className="px-10 md:px-16 py-4 md:py-5 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-500 transition-all shadow-xl active:scale-95 mx-auto w-full"
                 >
                   <Share2 className="w-5 h-5 md:w-6 md:h-6" />
-                  SHARE RESULT
+                  SHARE / SAVE
                 </button>
               </div>
             </motion.div>
