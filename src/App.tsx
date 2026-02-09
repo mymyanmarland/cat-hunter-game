@@ -652,17 +652,17 @@ const App: React.FC = () => {
           {gameState === 'gameover' && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-              className="pointer-events-auto bg-slate-950/80 backdrop-blur-3xl border-2 border-red-500/20 p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] text-center shadow-2xl mx-4"
+              className="pointer-events-auto bg-slate-950/80 backdrop-blur-3xl border-2 border-red-500/20 p-6 md:p-12 rounded-[2rem] md:rounded-[4rem] text-center shadow-2xl mx-4 max-h-[85vh] overflow-y-auto custom-scrollbar flex flex-col items-center"
             >
-              <h2 className="text-3xl md:text-4xl font-black text-red-500 mb-2 uppercase tracking-tighter italic">Time's Up!</h2>
-              <div className="flex gap-6 md:gap-10 my-8 md:my-10 items-center justify-center">
+              <h2 className="text-2xl md:text-4xl font-black text-red-500 mb-2 uppercase tracking-tighter italic">Time's Up!</h2>
+              <div className="flex gap-6 md:gap-10 my-6 md:my-10 items-center justify-center">
                 <div className="text-center">
-                  <p className="text-6xl md:text-9xl font-black tracking-tighter">{score}</p>
+                  <p className="text-5xl md:text-9xl font-black tracking-tighter tabular-nums">{score}</p>
                   <p className="text-slate-400 text-[10px] uppercase tracking-[0.4em] font-black">Score</p>
                 </div>
                 <div className="h-16 md:h-24 w-px bg-white/10"></div>
                 <div className="text-center">
-                  <p className="text-6xl md:text-9xl font-black tracking-tighter text-yellow-500">{coins}</p>
+                  <p className="text-5xl md:text-9xl font-black tracking-tighter text-yellow-500 tabular-nums">{coins}</p>
                   <p className="text-yellow-600/60 text-[10px] uppercase tracking-[0.4em] font-black">Gold Coins</p>
                 </div>
               </div>
