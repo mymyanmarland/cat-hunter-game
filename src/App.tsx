@@ -175,68 +175,124 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Background Gradient
-  const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-  gradient.addColorStop(0, '#020617');
-  gradient.addColorStop(1, '#1e1b4b');
-  ctx.fillStyle = gradient;
+  // Helper for rounded rectangles
+  const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  };
+
+  // 1. Deep Aesthetic Background
+  const bgGrad = ctx.createRadialGradient(600, 315, 0, 600, 315, 800);
+  bgGrad.addColorStop(0, '#1e1b4b');
+  bgGrad.addColorStop(1, '#020617');
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 1200, 630);
 
-  // Decorative Circles
-  ctx.beginPath();
-  ctx.arc(1100, 100, 200, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(79, 70, 229, 0.1)';
+  // Background Glowing Orbs
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#6366f1';
+  ctx.beginPath(); ctx.arc(100, 100, 300, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#a855f7';
+  ctx.beginPath(); ctx.arc(1100, 500, 400, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // 2. Header Section
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'black 90px Inter, sans-serif';
+  ctx.fillText('CAT HUNTER', 60, 110);
+  ctx.fillStyle = '#6366f1';
+  ctx.fillText('3D', 680, 110);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.font = 'bold 24px Inter, sans-serif';
+  ctx.letterSpacing = '4px';
+  ctx.fillText('MASTER INTELLIGENCE REPORT • ' + new Date().toLocaleDateString(), 65, 160);
+  ctx.letterSpacing = '0px';
+
+  // 3. Main Score Card (Glassmorphism)
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 40;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+  roundRect(60, 210, 650, 360, 40);
   ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
 
-  // Title & Timestamp
+  // Score Title
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 24px Inter, sans-serif';
+  ctx.fillText('TOTAL PERFORMANCE SCORE', 100, 270);
+
+  // Large Score Number
+  const scoreGrad = ctx.createLinearGradient(100, 300, 100, 500);
+  scoreGrad.addColorStop(0, '#ffffff');
+  scoreGrad.addColorStop(1, '#94a3b8');
+  ctx.fillStyle = scoreGrad;
+  ctx.font = 'black 220px Inter, sans-serif';
+  ctx.fillText(`${score}`, 100, 480);
+
+  // Coins Badge
+  ctx.fillStyle = 'rgba(234, 179, 8, 0.15)';
+  roundRect(100, 505, 220, 45, 12);
+  ctx.fill();
+  ctx.fillStyle = '#facc15';
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText(`🪙 ${coins} GOLD COINS`, 120, 535);
+
+  // 4. Live Market Card (Right Side)
+  ctx.save();
+  ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
+  roundRect(740, 210, 400, 360, 40);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.stroke();
+  ctx.restore();
+
+  // Market Header
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath(); ctx.arc(780, 250, 6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 80px Inter, sans-serif';
-  ctx.fillText('CAT HUNTER 3D', 50, 100);
-  
-  ctx.fillStyle = '#818cf8';
-  ctx.font = '40px Inter, sans-serif';
-  ctx.fillText(`MASTER REPORT • ${new Date().toLocaleString()}`, 50, 160);
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText('LIVE MARKET DATA', 800, 258);
 
-  // Score & Coins
-  ctx.fillStyle = '#fbbf24';
-  ctx.font = 'bold 120px Inter, sans-serif';
-  ctx.fillText(`${score}`, 50, 350);
-  ctx.font = '40px Inter, sans-serif';
-  ctx.fillText('SCORE', 50, 400);
+  marketData.slice(0, 4).forEach((item, i) => {
+    const y = 310 + (i * 65);
+    
+    // Icon circle
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.beginPath(); ctx.arc(785, y - 8, 20, 0, Math.PI * 2); ctx.fill();
 
-  ctx.fillStyle = '#fbbf24';
-  ctx.font = 'bold 120px Inter, sans-serif';
-  ctx.fillText(`${coins}`, 400, 350);
-  ctx.font = '40px Inter, sans-serif';
-  ctx.fillText('COINS', 400, 400);
-
-  // Market Data (Right Side)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.fillRect(800, 50, 350, 530);
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 30px Inter, sans-serif';
-  ctx.fillText('LIVE MARKETS', 830, 100);
-
-  marketData.forEach((item, i) => {
-    const y = 160 + (i * 80);
-    ctx.fillStyle = '#e2e8f0';
-    ctx.font = 'bold 24px Inter, sans-serif';
-    ctx.fillText(item.name, 830, y);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillText(item.name, 820, y - 10);
     
     ctx.fillStyle = '#ffffff';
-    ctx.font = '32px Inter, sans-serif';
-    ctx.fillText(item.price, 830, y + 40);
+    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.fillText(item.price, 820, y + 15);
     
-    ctx.fillStyle = item.change >= 0 ? '#34d399' : '#f87171';
-    ctx.font = '24px Inter, sans-serif';
-    ctx.fillText(`${item.change >= 0 ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1050, y + 40);
+    const isUp = item.change >= 0;
+    ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
+    ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.fillText(`${isUp ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1030, y + 15);
   });
+
+  // 5. Footer Watermark
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.font = 'bold 16px Inter, sans-serif';
+  ctx.fillText('POWERED BY KO PAING • ADVANCED AGENTIC INTELLIGENCE', 60, 605);
 
   return new Promise(resolve => {
     canvas.toBlob(blob => {
       if (blob) {
-        resolve(new File([blob], 'share.png', { type: 'image/png' }));
+        resolve(new File([blob], 'master-report.png', { type: 'image/png' }));
       } else {
         resolve(null);
       }
