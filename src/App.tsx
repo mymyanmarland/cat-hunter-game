@@ -168,7 +168,7 @@ const MarketSidebar = ({ onDataUpdate }: { onDataUpdate?: (data: MarketData[]) =
 
 // --- 3D Components ---
 
-const generateShareImage = async (score: number, coins: number, marketData: MarketData[]): Promise<File | null> => {
+const generateShareImage = async (score: number, coins: number, level: number, marketData: MarketData[]): Promise<File | null> => {
   const canvas = document.createElement('canvas');
   canvas.width = 1200;
   canvas.height = 630;
@@ -208,7 +208,7 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
   ctx.fillStyle = '#6366f1';
   ctx.font = 'bold 18px Inter, sans-serif';
   ctx.letterSpacing = '8px';
-  ctx.fillText('MASTER PERFORMANCE REPORT', 600, 140);
+  ctx.fillText(`MASTER PERFORMANCE REPORT • LEVEL ${level}`, 600, 140);
   ctx.letterSpacing = '0px';
 
   // 3. Grid Construction
@@ -388,10 +388,12 @@ const CatModel = () => {
 
 const GameEngine = ({ 
   gameState, 
+  level,
   onCatch, 
   onPlayerMove 
 }: { 
   gameState: string; 
+  level: number;
   onCatch: (pos: THREE.Vector3) => void;
   onPlayerMove: (pos: THREE.Vector3) => void;
 }) => {
@@ -421,15 +423,19 @@ const GameEngine = ({
       const catPos = catGroupRef.current.position;
       const dist = catPos.distanceTo(playerPos.current);
 
+      // Level Scaling Speed
+      const baseSpeed = 0.22 + (level * 0.05);
+      const wanderSpeed = 0.04 + (level * 0.01);
+
       if (dist < 4) {
         const escapeDir = new THREE.Vector3().subVectors(catPos, playerPos.current).normalize();
-        catVel.current.lerp(escapeDir.multiplyScalar(0.22), 0.1);
+        catVel.current.lerp(escapeDir.multiplyScalar(baseSpeed), 0.1);
       } else {
         if (Math.random() < 0.03) {
-          catVel.current.x += (Math.random() - 0.5) * 0.04;
-          catVel.current.z += (Math.random() - 0.5) * 0.04;
+          catVel.current.x += (Math.random() - 0.5) * wanderSpeed;
+          catVel.current.z += (Math.random() - 0.5) * wanderSpeed;
         }
-        catVel.current.clampLength(0, 0.1);
+        catVel.current.clampLength(0, 0.1 + (level * 0.02));
       }
 
       catPos.add(catVel.current);
@@ -460,22 +466,25 @@ const GameEngine = ({
   );
 };
 
-const Arena = () => {
+const Arena = ({ level }: { level: number }) => {
+  const colors = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#a855f7"];
+  const color = colors[(level - 1) % colors.length];
+
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[ARENA_SIZE + 4, ARENA_SIZE + 4]} />
         <meshStandardMaterial color="#020617" roughness={0.1} metalness={0.9} />
       </mesh>
-      <gridHelper args={[ARENA_SIZE + 4, 24, "#6366f1", "#1e1b4b"]} position={[0, 0.05, 0]} />
-      <Sparkles count={50} scale={ARENA_SIZE} size={2} speed={0.4} color="#a855f7" />
+      <gridHelper args={[ARENA_SIZE + 4, 24, color, "#1e1b4b"]} position={[0, 0.05, 0]} />
+      <Sparkles count={50} scale={ARENA_SIZE} size={2} speed={0.4} color={color} />
       {[
         [0, 0.5, ARENA_SIZE/2+2], [0, 0.5, -ARENA_SIZE/2-2], 
         [ARENA_SIZE/2+2, 0.5, 0], [-ARENA_SIZE/2-2, 0.5, 0]
       ].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]} rotation={i > 1 ? [0, Math.PI/2, 0] : [0,0,0]}>
           <boxGeometry args={[ARENA_SIZE+4, 1, 0.2]} />
-          <meshStandardMaterial color="#4f46e5" emissive="#4f46e5" emissiveIntensity={2} transparent opacity={0.4} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} transparent opacity={0.4} />
         </mesh>
       ))}
     </group>
@@ -488,11 +497,20 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover'>('start');
   const [score, setScore] = useState(0);
   const [coins, setCoins] = useState(0);
+  const [level, setLevel] = useState(1);
   const [highScore, setHighScore] = useState(Number(localStorage.getItem('cat-hunter-highscore-v4')) || 0);
   const [time, setTime] = useState(30);
   const [activeCoins, setActiveCoins] = useState<{ id: number, pos: THREE.Vector3 }[]>([]);
   const [marketDataForShare, setMarketDataForShare] = useState<MarketData[]>([]);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
+
+  // Level Logic
+  useEffect(() => {
+    const newLevel = Math.floor(score / 50) + 1;
+    if (newLevel > level) {
+      setLevel(newLevel);
+    }
+  }, [score, level]);
 
   // Capture market data for sharing
   useEffect(() => {
@@ -554,9 +572,10 @@ const App: React.FC = () => {
         <pointLight position={[-10, 5, -10]} intensity={1} color="#a855f7" />
 
         <Suspense fallback={null}>
-          <Arena />
+          <Arena level={level} />
           <GameEngine 
             gameState={gameState} 
+            level={level}
             onCatch={handleCatch} 
             onPlayerMove={() => {}} 
           />
@@ -601,8 +620,9 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass-card px-8 md:px-12 py-2 md:py-4 rounded-3xl border-t border-white/20 shadow-2xl scale-90 md:scale-100">
-            <span className={`font-mono text-4xl md:text-5xl font-black tracking-tighter ${time < 10 ? 'text-red-500 animate-pulse' : 'text-indigo-400'}`}>
+          <div className="glass-card px-8 md:px-12 py-2 md:py-4 rounded-3xl border-t border-white/20 shadow-2xl scale-90 md:scale-100 flex flex-col items-center">
+            <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Level {level}</span>
+            <span className={`font-mono text-4xl md:text-5xl font-black tracking-tighter ${time < 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
               {time}s
             </span>
           </div>
@@ -687,7 +707,7 @@ const App: React.FC = () => {
                 
                 <button 
                   onClick={async () => {
-                    const file = await generateShareImage(score, coins, marketDataForShare);
+                    const file = await generateShareImage(score, coins, level, marketDataForShare);
                     if (!file) return;
 
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -695,14 +715,14 @@ const App: React.FC = () => {
                         await navigator.share({
                           files: [file],
                           title: 'Cat Hunter 3D Result',
-                          text: `I scored ${score} points in Cat Hunter 3D! 🐭🐱`,
+                          text: `I scored ${score} points and reached Level ${level} in Cat Hunter 3D! 🐭🐱`,
                         });
                       } catch (err) { console.error(err); }
                     } else {
                       const url = URL.createObjectURL(file);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `cat-hunter-result.png`;
+                      a.download = `cat-hunter-result-level-${level}.png`;
                       a.click();
                       URL.revokeObjectURL(url);
                     }
@@ -738,7 +758,7 @@ const App: React.FC = () => {
 
                 <button 
                   onClick={async () => {
-                    const file = await generateShareImage(score, coins, marketDataForShare);
+                    const file = await generateShareImage(score, coins, level, marketDataForShare);
                     if (file && navigator.clipboard && (window as any).ClipboardItem) {
                       try {
                         const item = new (window as any).ClipboardItem({ 'image/png': file });
