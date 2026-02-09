@@ -11,7 +11,7 @@ import {
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
-import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark, Share2 } from 'lucide-react';
+import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark, Share2, Facebook, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Constants ---
@@ -617,6 +617,29 @@ const App: React.FC = () => {
                   <Share2 className="w-5 h-5 md:w-6 md:h-6" />
                   SHARE / SAVE
                 </button>
+
+                <div className="flex gap-4 w-full">
+                  <button 
+                    onClick={() => {
+                      const text = `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! Play here: ${window.location.href}`;
+                      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="flex-1 py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+                  >
+                    <Facebook className="w-5 h-5 fill-current" />
+                    Facebook
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const text = `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! 🐭🐱\n\nPlay here: ${window.location.href}`;
+                      window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="flex-1 py-4 bg-[#0088cc] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+                  >
+                    <Send className="w-5 h-5" />
+                    Telegram
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
