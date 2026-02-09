@@ -175,7 +175,6 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Helper for rounded rectangles
   const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -186,108 +185,130 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
     ctx.closePath();
   };
 
-  // 1. Deep Aesthetic Background
-  const bgGrad = ctx.createRadialGradient(600, 315, 0, 600, 315, 800);
-  bgGrad.addColorStop(0, '#1e1b4b');
+  // 1. Dynamic Mesh/Vaporwave Background
+  const bgGrad = ctx.createLinearGradient(0, 0, 1200, 630);
+  bgGrad.addColorStop(0, '#020617');
+  bgGrad.addColorStop(0.5, '#1e1b4b');
   bgGrad.addColorStop(1, '#020617');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 1200, 630);
 
-  // Background Glowing Orbs
-  ctx.globalAlpha = 0.15;
-  ctx.fillStyle = '#6366f1';
-  ctx.beginPath(); ctx.arc(100, 100, 300, 0, Math.PI * 2); ctx.fill();
+  // Decorative Glows
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = '#4f46e5';
+  ctx.beginPath(); ctx.arc(0, 0, 500, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#a855f7';
-  ctx.beginPath(); ctx.arc(1100, 500, 400, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(1200, 630, 500, 0, Math.PI * 2); ctx.fill();
   ctx.globalAlpha = 1;
 
-  // 2. Header Section
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'black 90px Inter, sans-serif';
-  ctx.fillText('CAT HUNTER', 60, 110);
-  ctx.fillStyle = '#6366f1';
-  ctx.fillText('3D', 680, 110);
+  // 2. Cohesive Header
+  ctx.textAlign = 'center';
+  const headerGrad = ctx.createLinearGradient(0, 50, 0, 120);
+  headerGrad.addColorStop(0, '#ffffff');
+  headerGrad.addColorStop(1, '#94a3b8');
+  ctx.fillStyle = headerGrad;
+  ctx.font = 'black 100px Inter, sans-serif';
+  ctx.fillText('CAT HUNTER 3D', 600, 100);
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.font = 'bold 24px Inter, sans-serif';
-  ctx.letterSpacing = '4px';
-  ctx.fillText('MASTER INTELLIGENCE REPORT • ' + new Date().toLocaleDateString(), 65, 160);
+  ctx.fillStyle = 'rgba(129, 140, 248, 0.6)';
+  ctx.font = 'bold 22px Inter, sans-serif';
+  ctx.letterSpacing = '10px';
+  ctx.fillText('MASTER PERFORMANCE INTELLIGENCE', 600, 150);
   ctx.letterSpacing = '0px';
 
-  // 3. Main Score Card (Glassmorphism)
+  // 3. Grid/Layout
+  ctx.textAlign = 'left';
+  
+  // Left Box: Score & Status
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.5)';
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
-  roundRect(60, 210, 650, 360, 40);
+  ctx.shadowColor = 'rgba(79, 70, 229, 0.3)';
+  ctx.shadowBlur = 50;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+  roundRect(60, 200, 650, 380, 50);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.lineWidth = 2;
   ctx.stroke();
   ctx.restore();
 
-  // Score Title
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = 'bold 24px Inter, sans-serif';
-  ctx.fillText('TOTAL PERFORMANCE SCORE', 100, 270);
+  // Score Details
+  ctx.fillStyle = '#818cf8';
+  ctx.font = 'black 20px Inter, sans-serif';
+  ctx.fillText('TOTAL CAPTURE SCORE', 110, 260);
 
-  // Large Score Number
-  const scoreGrad = ctx.createLinearGradient(100, 300, 100, 500);
+  const scoreGrad = ctx.createLinearGradient(0, 300, 0, 500);
   scoreGrad.addColorStop(0, '#ffffff');
-  scoreGrad.addColorStop(1, '#94a3b8');
+  scoreGrad.addColorStop(1, '#6366f1');
   ctx.fillStyle = scoreGrad;
-  ctx.font = 'black 220px Inter, sans-serif';
-  ctx.fillText(`${score}`, 100, 480);
+  ctx.font = 'black 280px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${score}`, 385, 480);
 
-  // Coins Badge
-  ctx.fillStyle = 'rgba(234, 179, 8, 0.15)';
-  roundRect(100, 505, 220, 45, 12);
+  // Coins Pill
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#eab308';
+  ctx.globalAlpha = 0.1;
+  roundRect(260, 500, 250, 50, 25);
   ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(234, 179, 8, 0.3)';
+  ctx.stroke();
   ctx.fillStyle = '#facc15';
-  ctx.font = 'bold 20px Inter, sans-serif';
-  ctx.fillText(`🪙 ${coins} GOLD COINS`, 120, 535);
+  ctx.font = 'bold 24px Inter, sans-serif';
+  ctx.fillText(`🪙  ${coins} GOLD COINS`, 290, 535);
 
-  // 4. Live Market Card (Right Side)
+  // 4. Right Box: Market Data
   ctx.save();
-  ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
-  roundRect(740, 210, 400, 360, 40);
+  ctx.fillStyle = 'rgba(30, 41, 59, 0.5)';
+  roundRect(740, 200, 400, 380, 50);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.stroke();
   ctx.restore();
 
-  // Market Header
+  // Live Indicator
   ctx.fillStyle = '#10b981';
-  ctx.beginPath(); ctx.arc(780, 250, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(790, 245, 6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 20px Inter, sans-serif';
-  ctx.fillText('LIVE MARKET DATA', 800, 258);
+  ctx.font = 'bold 22px Inter, sans-serif';
+  ctx.fillText('LIVE MARKET DATA', 815, 253);
 
+  const icons = ['₿', 'Ξ', 'S', 'G', 'M'];
   marketData.slice(0, 4).forEach((item, i) => {
-    const y = 310 + (i * 65);
+    const y = 310 + (i * 68);
     
-    // Icon circle
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.beginPath(); ctx.arc(785, y - 8, 20, 0, Math.PI * 2); ctx.fill();
-
-    ctx.fillStyle = '#cbd5e1';
+    // Icon
+    ctx.fillStyle = 'rgba(99, 102, 241, 0.2)';
+    ctx.beginPath(); ctx.arc(795, y - 10, 22, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#818cf8';
     ctx.font = 'bold 18px Inter, sans-serif';
-    ctx.fillText(item.name, 820, y - 10);
+    ctx.textAlign = 'center';
+    ctx.fillText(icons[i] || '•', 795, y - 3);
+
+    // Label
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillText(item.name, 835, y - 12);
     
+    // Price
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 22px Inter, sans-serif';
-    ctx.fillText(item.price, 820, y + 15);
+    ctx.font = 'black 26px Inter, sans-serif';
+    ctx.fillText(item.price, 835, y + 18);
     
+    // Change
     const isUp = item.change >= 0;
     ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
-    ctx.font = 'bold 16px Inter, sans-serif';
-    ctx.fillText(`${isUp ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1030, y + 15);
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${isUp ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1100, y + 18);
   });
 
-  // 5. Footer Watermark
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.font = 'bold 16px Inter, sans-serif';
-  ctx.fillText('POWERED BY KO PAING • ADVANCED AGENTIC INTELLIGENCE', 60, 605);
+  // 5. Signature Footer
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.font = 'bold 14px Inter, sans-serif';
+  ctx.fillText('GENERATED BY KO PAING MASTER INTELLIGENCE • MYMYANMARLAND LABS', 600, 610);
 
   return new Promise(resolve => {
     canvas.toBlob(blob => {
