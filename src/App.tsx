@@ -11,7 +11,7 @@ import {
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
-import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark, Share2, Facebook, Send } from 'lucide-react';
+import { Trophy, RefreshCcw, Github, Play, TrendingUp, TrendingDown, Coins, CircleDollarSign, BarChart3, Landmark, Share2, Facebook, Send, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Constants ---
@@ -177,19 +177,25 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
 
   // Background Gradient
   const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-  gradient.addColorStop(0, '#1e1b4b');
-  gradient.addColorStop(1, '#312e81');
+  gradient.addColorStop(0, '#020617');
+  gradient.addColorStop(1, '#1e1b4b');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1200, 630);
 
-  // Title
+  // Decorative Circles
+  ctx.beginPath();
+  ctx.arc(1100, 100, 200, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(79, 70, 229, 0.1)';
+  ctx.fill();
+
+  // Title & Timestamp
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 80px Inter, sans-serif';
-  ctx.fillText('Cat Hunter 3D', 50, 100);
+  ctx.fillText('CAT HUNTER 3D', 50, 100);
   
-  ctx.fillStyle = '#a5b4fc';
+  ctx.fillStyle = '#818cf8';
   ctx.font = '40px Inter, sans-serif';
-  ctx.fillText('Market Master Edition', 50, 160);
+  ctx.fillText(`MASTER REPORT • ${new Date().toLocaleString()}`, 50, 160);
 
   // Score & Coins
   ctx.fillStyle = '#fbbf24';
@@ -420,6 +426,7 @@ const App: React.FC = () => {
   const [time, setTime] = useState(30);
   const [activeCoins, setActiveCoins] = useState<{ id: number, pos: THREE.Vector3 }[]>([]);
   const [marketDataForShare, setMarketDataForShare] = useState<MarketData[]>([]);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
 
   // Capture market data for sharing
   useEffect(() => {
@@ -577,14 +584,15 @@ const App: React.FC = () => {
                   <p className="text-yellow-600/60 text-[10px] uppercase tracking-[0.4em] font-black">Gold Coins</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => { setScore(0); setCoins(0); setTime(30); setGameState('playing'); }}
                   className="px-10 md:px-16 py-4 md:py-5 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-50 transition-all shadow-xl active:scale-95 mx-auto w-full"
                 >
                   <RefreshCcw className="w-5 h-5 md:w-6 md:h-6" />
-                  RETRY MISSION
+                  ထပ်ဆော့မည်
                 </button>
+                
                 <button 
                   onClick={async () => {
                     const file = await generateShareImage(score, coins, marketDataForShare);
@@ -594,52 +602,69 @@ const App: React.FC = () => {
                       try {
                         await navigator.share({
                           files: [file],
-                          title: 'Cat Hunter 3D Score',
-                          text: `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! Market Data included.`,
+                          title: 'Cat Hunter 3D Result',
+                          text: `I scored ${score} points in Cat Hunter 3D! 🐭🐱`,
                         });
-                      } catch (err) {
-                        console.error('Share failed:', err);
-                      }
+                      } catch (err) { console.error(err); }
                     } else {
-                      // Fallback: Download Image
                       const url = URL.createObjectURL(file);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `cat-hunter-score-${Date.now()}.png`;
-                      document.body.appendChild(a);
+                      a.download = `cat-hunter-result.png`;
                       a.click();
-                      document.body.removeChild(a);
                       URL.revokeObjectURL(url);
                     }
                   }}
                   className="px-10 md:px-16 py-4 md:py-5 bg-indigo-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-xl flex items-center justify-center gap-4 hover:bg-indigo-500 transition-all shadow-xl active:scale-95 mx-auto w-full"
                 >
                   <Share2 className="w-5 h-5 md:w-6 md:h-6" />
-                  SHARE / SAVE
+                  ပုံဖြင့် Share မည် / သိမ်းမည်
                 </button>
 
-                <div className="flex gap-4 w-full">
+                <div className="flex gap-3 w-full">
                   <button 
                     onClick={() => {
-                      const text = `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! Play here: ${window.location.href}`;
+                      const text = `ငါ Cat Hunter 3D မှာ ${score} မှတ် ရထားတယ်။ လာဆော့ကြည့်ပါဦး! 🐭🐱\n\nLink: ${window.location.href}`;
                       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`, '_blank');
                     }}
-                    className="flex-1 py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+                    className="flex-1 py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 text-sm"
                   >
-                    <Facebook className="w-5 h-5 fill-current" />
+                    <Facebook className="w-4 h-4 fill-current" />
                     Facebook
                   </button>
                   <button 
                     onClick={() => {
-                      const text = `I scored ${score} points and collected ${coins} coins in Cat Hunter 3D! 🐭🐱\n\nPlay here: ${window.location.href}`;
+                      const text = `ငါ Cat Hunter 3D မှာ ${score} မှတ် ရထားတယ်။ လာဆော့ကြည့်ပါဦး! 🐭🐱\n\nLink: ${window.location.href}`;
                       window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
                     }}
-                    className="flex-1 py-4 bg-[#0088cc] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+                    className="flex-1 py-4 bg-[#0088cc] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 text-sm"
                   >
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4" />
                     Telegram
                   </button>
                 </div>
+
+                <button 
+                  onClick={async () => {
+                    const file = await generateShareImage(score, coins, marketDataForShare);
+                    if (file && navigator.clipboard && (window as any).ClipboardItem) {
+                      try {
+                        const item = new (window as any).ClipboardItem({ 'image/png': file });
+                        await navigator.clipboard.write([item]);
+                        setCopyStatus('copied');
+                        setTimeout(() => setCopyStatus('idle'), 2000);
+                      } catch (err) {
+                        alert('Clipboard format not supported in this browser. Try the "Share / Save" button above.');
+                      }
+                    } else {
+                      alert('Direct copy not supported. Please use the "Share / Save" button.');
+                    }
+                  }}
+                  className="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition-all active:scale-95"
+                >
+                  {copyStatus === 'copied' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copyStatus === 'copied' ? 'ပုံကို Copy ကူးပြီးပါပြီ (Paste လုပ်ရုံပဲ!)' : 'ရလဒ်ပုံကို Clipboard ထဲ Copy ကူးမည်'}
+                </button>
               </div>
             </motion.div>
           )}
