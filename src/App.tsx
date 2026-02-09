@@ -185,135 +185,124 @@ const generateShareImage = async (score: number, coins: number, marketData: Mark
     ctx.closePath();
   };
 
-  // 1. Ultra-Dark Cinematic Background
-  ctx.fillStyle = '#020617';
+  // 1. Sleek Deep Space Background
+  const bgGrad = ctx.createLinearGradient(0, 0, 1200, 630);
+  bgGrad.addColorStop(0, '#020617');
+  bgGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 1200, 630);
 
-  // Subtle Grid Pattern
-  ctx.strokeStyle = 'rgba(99, 102, 241, 0.05)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 1200; i += 40) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 630); ctx.stroke();
-  }
-  for (let i = 0; i < 630; i += 40) {
-    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1200, i); ctx.stroke();
-  }
-
-  // Neon Glow Orbs
-  const grad1 = ctx.createRadialGradient(200, 200, 0, 200, 200, 600);
-  grad1.addColorStop(0, 'rgba(79, 70, 229, 0.15)');
-  grad1.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  ctx.fillStyle = grad1;
+  // Decorative Accent (Purple Glow)
+  const glow = ctx.createRadialGradient(1200, 0, 0, 1200, 0, 800);
+  glow.addColorStop(0, 'rgba(124, 58, 237, 0.2)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, 1200, 630);
 
-  const grad2 = ctx.createRadialGradient(1000, 400, 0, 1000, 400, 600);
-  grad2.addColorStop(0, 'rgba(168, 85, 247, 0.15)');
-  grad2.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  ctx.fillStyle = grad2;
-  ctx.fillRect(0, 0, 1200, 630);
-
-  // 2. Header: Cyberpunk Style
+  // 2. Sophisticated Header
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'black 120px Inter, sans-serif';
-  ctx.shadowColor = 'rgba(99, 102, 241, 0.8)';
-  ctx.shadowBlur = 30;
-  ctx.fillText('CAT HUNTER 3D', 600, 120);
-  ctx.shadowBlur = 0;
+  ctx.font = '900 80px Inter, sans-serif';
+  ctx.fillText('CAT HUNTER 3D', 600, 100);
 
-  ctx.fillStyle = '#818cf8';
-  ctx.font = 'bold 20px Inter, sans-serif';
-  ctx.letterSpacing = '12px';
-  ctx.fillText('• AGENTIC INTELLIGENCE REPORT •', 600, 170);
+  ctx.fillStyle = '#6366f1';
+  ctx.font = 'bold 18px Inter, sans-serif';
+  ctx.letterSpacing = '8px';
+  ctx.fillText('MASTER PERFORMANCE REPORT', 600, 140);
   ctx.letterSpacing = '0px';
 
-  // 3. Central Performance Hub
-  // Glass Main Panel
+  // 3. Grid Construction
+  const cardY = 190;
+  const cardH = 380;
+  
+  // Score Panel (Left)
   ctx.save();
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
-  roundRect(60, 210, 1080, 360, 60);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+  roundRect(60, cardY, 680, cardH, 40);
   ctx.fill();
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
 
-  // Left: Score Section
-  ctx.textAlign = 'left';
+  // Score Content
+  ctx.textAlign = 'center';
   ctx.fillStyle = '#94a3b8';
-  ctx.font = 'bold 24px Inter, sans-serif';
-  ctx.fillText('SESSION SCORE', 120, 270);
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText('FINAL SESSION SCORE', 400, cardY + 60);
 
-  const scoreGrad = ctx.createLinearGradient(0, 300, 0, 500);
+  const scoreGrad = ctx.createLinearGradient(0, cardY + 100, 0, cardY + 300);
   scoreGrad.addColorStop(0, '#ffffff');
-  scoreGrad.addColorStop(1, '#6366f1');
+  scoreGrad.addColorStop(1, '#818cf8');
   ctx.fillStyle = scoreGrad;
-  ctx.font = 'black 220px Inter, sans-serif';
-  ctx.fillText(`${score}`, 110, 480);
+  ctx.font = '900 240px Inter, sans-serif';
+  ctx.fillText(`${score}`, 400, cardY + 280);
 
-  // Coins Badge
+  // Coins Badge (Pill style)
   ctx.fillStyle = 'rgba(234, 179, 8, 0.1)';
-  roundRect(120, 505, 260, 50, 25);
+  roundRect(280, cardY + 300, 240, 44, 22);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(234, 179, 8, 0.3)';
-  ctx.stroke();
   ctx.fillStyle = '#facc15';
-  ctx.font = 'bold 24px Inter, sans-serif';
-  ctx.fillText(`🪙  ${coins} COLLECTED`, 150, 540);
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText(`🪙  ${coins} COINS`, 400, cardY + 330);
 
-  // Vertical Divider
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-  ctx.beginPath(); ctx.moveTo(500, 260); ctx.lineTo(500, 520); ctx.stroke();
+  // Market Panel (Right)
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+  roundRect(760, cardY, 380, cardH, 40);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+  ctx.stroke();
+  ctx.restore();
 
-  // Right: Market Intel
+  // Market Header
+  ctx.textAlign = 'left';
   ctx.fillStyle = '#10b981';
-  ctx.font = 'bold 24px Inter, sans-serif';
-  ctx.fillText('LIVE DATA FEED', 550, 270);
+  ctx.beginPath(); ctx.arc(800, cardY + 45, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText('LIVE INTELLIGENCE', 820, cardY + 52);
 
   const symbols = ['₿', 'Ξ', 'S', 'G'];
   marketData.slice(0, 4).forEach((item, i) => {
-    const y = 330 + (i * 60);
+    const y = cardY + 110 + (i * 68);
     
-    // Line item background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
-    roundRect(540, y - 35, 560, 50, 15);
-    ctx.fill();
-
-    // Symbol
+    // Icon
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.beginPath(); ctx.arc(805, y - 8, 20, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#818cf8';
-    ctx.font = 'bold 26px Inter, sans-serif';
-    ctx.fillText(symbols[i] || '•', 560, y);
+    ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(symbols[i] || '•', 805, y - 2);
 
-    // Name
+    // Label & Price
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.fillText(item.name, 840, y - 10);
+    
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 22px Inter, sans-serif';
-    ctx.fillText(item.name, 610, y);
-
-    // Price (Right aligned to a point)
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'black 22px Inter, sans-serif';
-    ctx.fillText(item.price, 950, y);
-
+    ctx.fillText(item.price, 840, y + 16);
+    
     // Change
     const isUp = item.change >= 0;
     ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
-    ctx.font = 'bold 18px Inter, sans-serif';
-    ctx.fillText(`${isUp ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1080, y);
-    ctx.textAlign = 'left';
+    ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${isUp ? '▲' : '▼'} ${Math.abs(item.change).toFixed(2)}%`, 1110, y + 16);
   });
 
-  // 4. Footer: Tech Overlay
+  // 4. Footer
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-  ctx.font = 'bold 16px Inter, sans-serif';
-  const meta = `BUILD: v2.0.4 • REGION: ASIA/RANGOON • DATE: ${new Date().toISOString()}`;
-  ctx.fillText(meta, 600, 605);
+  ctx.font = '500 14px Inter, sans-serif';
+  ctx.fillText(`KO PAING MASTER AGENT • ${new Date().toLocaleTimeString()} • REGION: MM`, 600, 605);
 
   return new Promise(resolve => {
     canvas.toBlob(blob => {
       if (blob) {
-        resolve(new File([blob], 'cat-hunter-report.png', { type: 'image/png' }));
+        resolve(new File([blob], 'master-result.png', { type: 'image/png' }));
       } else {
         resolve(null);
       }
