@@ -96,7 +96,7 @@ const MarketSidebar = ({ onDataUpdate }: { onDataUpdate?: (data: MarketData[]) =
       ];
 
       const worldItems: MarketData[] = [
-        { name: 'GOLD', price: '2735.40', change: 0.45, icon: <Landmark className="text-yellow-500 w-4 h-4" /> },
+        { name: 'GOLD', price: '5053.23', change: 1.73, icon: <Landmark className="text-yellow-500 w-4 h-4" /> },
         { name: 'S&P 500', price: '5980.20', change: -0.12, icon: <BarChart3 className="text-emerald-400 w-4 h-4" /> },
         { name: 'USD/MMK', price: '4550.00', change: 0.15, icon: <CircleDollarSign className="text-indigo-400 w-4 h-4" /> },
       ];
